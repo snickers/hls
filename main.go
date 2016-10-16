@@ -11,7 +11,12 @@ package main
 
 */
 import "C"
-import "fmt"
+
+import (
+	"fmt"
+
+	"github.com/3d0c/gmf"
+)
 
 type config struct {
 	BaseURL         string
@@ -25,11 +30,28 @@ type config struct {
 	Duration        int
 }
 
-func main() {
-	var avContext *C.struct_AVFormatContext
+func segment(cfg config) error {
+	var sourceContext *C.struct_AVFormatContext
 	//	var segmenterContext *C.struct_SegmenterContext
 
 	C.av_register_all()
-	C.avformat_free_context(avContext)
-	fmt.Println("it works.")
+
+	if averr := C.avformat_open_input(&sourceContext, C.CString(cfg.SourceFile), nil, nil); averr < 0 {
+		return fmt.Errorf("Error opening input: %s", gmf.AvError(int(averr)))
+	}
+
+	C.avformat_free_context(sourceContext)
+	return nil
+}
+
+func main() {
+	myCfg := config{
+		SourceFile: "fixtures/test.mp4",
+	}
+
+	if res := segment(myCfg); res != nil {
+		fmt.Println("error!", res.Error())
+	} else {
+		fmt.Println("success")
+	}
 }
