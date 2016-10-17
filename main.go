@@ -22,7 +22,7 @@ import (
 type config struct {
 	BaseURL         string
 	FileBase        string
-	MediaFileName   string
+	MediaBaseName   string
 	IndexFile       string
 	SourceFile      string
 	Stat            int
@@ -64,16 +64,30 @@ func segment(cfg config) error {
 	}
 
 	if ret := C.segmenter_alloc_context(&outputContext); ret < 0 {
-		return fmt.Errorf("Cannot allocate context: %s", C.sg_strerror(ret))
+		return fmt.Errorf("Cannot allocate context: %s", C.GoString(C.sg_strerror(C.int(ret))))
 	}
 	defer C.segmenter_free_context(outputContext)
 
+	fileBase := C.CString(cfg.FileBase)
+	defer C.free(unsafe.Pointer(fileBase))
+
+	mediaBaseName := C.CString(cfg.MediaBaseName)
+	defer C.free(unsafe.Pointer(mediaBaseName))
+
+	if ret := C.segmenter_init(outputContext, sourceContext, fileBase, mediaBaseName, C.double(cfg.Duration), C.int(3)); ret != 0 {
+		return fmt.Errorf("Cannot initialize segmenter: %s", C.GoString(C.sg_strerror(C.int(ret))))
+	}
+
+	if ret := C.segmenter_open(outputContext); ret < 0 {
+		return fmt.Errorf("open output: %s", C.GoString(C.sg_strerror(C.int(ret))))
+	}
 	return nil
 }
 
 func main() {
 	myCfg := config{
 		SourceFile: "fixtures/test.mp4",
+		FileBase:   "output",
 	}
 
 	if res := segment(myCfg); res != nil {
