@@ -6,7 +6,7 @@ package main
 #include <libavdevice/avdevice.h>
 #include "c/segmenter.h"
 #include "c/util.h"
-#cgo LDFLAGS: -L. -lsegmenter -lavcodec -lavformat -lavutil
+#cgo LDFLAGS: -L${SRCDIR}/build -lsegmenter -lavcodec -lavformat -lavutil
 */
 import "C"
 
@@ -31,7 +31,7 @@ type config struct {
 
 func segment(cfg config) error {
 	var sourceContext *C.struct_AVFormatContext
-	//	var outputContext *C.struct_SegmenterContext
+	var outputContext *C.SegmenterContext
 
 	C.av_register_all()
 
@@ -47,10 +47,10 @@ func segment(cfg config) error {
 		return fmt.Errorf("Error finding stream info: %s", gmf.AvError(int(averr)))
 	}
 
-	//	if ret := C.segmenter_alloc_context(&outputContext); ret < 0 {
-	//		return fmt.Errorf("Cannot allocate context: %s", C.sg_strerror(ret))
-	//	}
-	//	defer C.segmenter_free_context(outputContext)
+	if ret := C.segmenter_alloc_context(&outputContext); ret < 0 {
+		return fmt.Errorf("Cannot allocate context: %s", C.sg_strerror(ret))
+	}
+	defer C.segmenter_free_context(outputContext)
 
 	return nil
 }
