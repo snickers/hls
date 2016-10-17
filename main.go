@@ -52,8 +52,6 @@ func segment(cfg config) error {
 	//	}
 	//	defer C.segmenter_free_context(outputContext)
 
-	C.sumflv()
-
 	return nil
 }
 

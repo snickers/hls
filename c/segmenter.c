@@ -37,10 +37,6 @@ static const char* kFormatMPEGTS    = "mpegts";
 
 static const size_t kAvgSegmentsCount = 128;
 
-void sumflv(void) {
-    printf("oooook\n");
-}
-
 static AVStream* copy_stream(AVFormatContext *context, AVStream *source_stream) {
     AVStream *output_stream = avformat_new_stream(context, source_stream->codec->codec);
     
