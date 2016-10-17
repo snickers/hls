@@ -73,6 +73,31 @@ func Segment(cfg HLSConfig) error {
 	if ret := C.segmenter_open(outputContext); ret < 0 {
 		return fmt.Errorf("open output: %s", C.GoString(C.sg_strerror(C.int(ret))))
 	}
+
+	var pkt C.AVPacket
+
+	for {
+		if ret := C.av_read_frame(sourceContext, &pkt); ret < 0 {
+			break
+		}
+
+		if ret := C.segmenter_write_pkt(outputContext, sourceContext, &pkt); ret != 0 {
+			return fmt.Errorf("writing packet: %s", C.GoString(C.sg_strerror(C.int(ret))))
+		}
+	}
+
+	C.segmenter_close(outputContext)
+
+	baseURL := C.CString(cfg.BaseURL)
+	defer C.free(unsafe.Pointer(baseURL))
+
+	indexFile := C.CString(cfg.IndexFile)
+	defer C.free(unsafe.Pointer(indexFile))
+
+	if ret := C.segmenter_write_playlist(outputContext, 0, baseURL, indexFile); ret != 0 {
+		return fmt.Errorf("writing playlist: %s", C.GoString(C.sg_strerror(C.int(ret))))
+	}
+
 	return nil
 }
 
