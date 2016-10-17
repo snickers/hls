@@ -1,19 +1,18 @@
 package main
 
 /*
-
-#cgo pkg-config: libavformat libavdevice
-
-#include <stdlib.h>
+#include <stdio.h>
 #include "libavformat/avformat.h"
 #include <libavdevice/avdevice.h>
 #include "c/segmenter.h"
-
+#include "c/util.h"
+#cgo LDFLAGS: -L. -lsegmenter -lavcodec -lavformat -lavutil
 */
 import "C"
 
 import (
 	"fmt"
+	"unsafe"
 
 	"github.com/3d0c/gmf"
 )
@@ -32,15 +31,29 @@ type config struct {
 
 func segment(cfg config) error {
 	var sourceContext *C.struct_AVFormatContext
-	//	var segmenterContext *C.struct_SegmenterContext
+	//	var outputContext *C.struct_SegmenterContext
 
 	C.av_register_all()
 
-	if averr := C.avformat_open_input(&sourceContext, C.CString(cfg.SourceFile), nil, nil); averr < 0 {
+	sourceFile := C.CString(cfg.SourceFile)
+	defer C.free(unsafe.Pointer(sourceFile))
+
+	if averr := C.avformat_open_input(&sourceContext, sourceFile, nil, nil); averr < 0 {
 		return fmt.Errorf("Error opening input: %s", gmf.AvError(int(averr)))
 	}
+	defer C.avformat_free_context(sourceContext)
 
-	C.avformat_free_context(sourceContext)
+	if averr := C.avformat_find_stream_info(sourceContext, nil); averr < 0 {
+		return fmt.Errorf("Error finding stream info: %s", gmf.AvError(int(averr)))
+	}
+
+	//	if ret := C.segmenter_alloc_context(&outputContext); ret < 0 {
+	//		return fmt.Errorf("Cannot allocate context: %s", C.sg_strerror(ret))
+	//	}
+	//	defer C.segmenter_free_context(outputContext)
+
+	C.sumflv()
+
 	return nil
 }
 

@@ -67,6 +67,8 @@ typedef struct {
     
 } SegmenterContext;
 
+
+void sumflv(void);
 int  segmenter_alloc_context(SegmenterContext**);
 int  segmenter_init(SegmenterContext *context, AVFormatContext *source, char* file_base_name, char* media_base_name, 
                         double target_duration, int media_filter);
