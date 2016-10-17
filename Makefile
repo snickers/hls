@@ -1,10 +1,9 @@
-.PHONY: all run build help 
-
-help:
-	@echo '    build ...................... go get the dependencies'
-
-build:
-	go get
-
-run:
-	go run main.go
+all:
+	rm -rf build
+	gofmt -e -s -w .
+	go vet .
+	mkdir build
+	$(CC) -Wno-deprecated -g -fPIC -c -o build/segmenter.o c/segmenter.c
+	$(CC) -Wno-deprecated -g -fPIC -c -o build/util.o c/util.c
+	$(CC) -g -lavcodec -lavformat -lavutil -fPIC -shared -o build/libsegmenter.so build/segmenter.o build/util.o
+	LD_LIBRARY_PATH=. go build main.go
