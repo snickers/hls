@@ -1,4 +1,4 @@
-package main
+package segmenter
 
 /*
 #include <stdio.h>
@@ -7,7 +7,7 @@ package main
 #include "c/segmenter.h"
 #include "c/util.h"
 
-#cgo LDFLAGS: -L${SRCDIR}/build -lsegmenter -lavcodec -lavformat -lavutil
+#cgo LDFLAGS: -L${SRCDIR}/../build -lsegmenter -lavcodec -lavformat -lavutil
 */
 import "C"
 
