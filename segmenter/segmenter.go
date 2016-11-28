@@ -26,7 +26,6 @@ type HLSConfig struct {
 	MediaBaseName   string
 	IndexFile       string
 	SourceFile      string
-	Stat            int
 	SegmentDuration float64
 }
 
