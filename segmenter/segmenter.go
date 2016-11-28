@@ -21,14 +21,13 @@ import (
 
 //HLSConfig stores all the configurations needed for HLS outputs
 type HLSConfig struct {
-	BaseURL         string
-	FileBase        string
-	MediaBaseName   string
-	IndexFile       string
-	SourceFile      string
-	Stat            int
-	PlaylistEntries int
-	Duration        float64
+	BaseURL       string
+	FileBase      string
+	MediaBaseName string
+	IndexFile     string
+	SourceFile    string
+	Stat          int
+	Duration      float64
 }
 
 // Segment function is responsible for the HLS generation
@@ -103,7 +102,7 @@ func Segment(cfg HLSConfig) error {
 
 func setDefaultValues(cfg HLSConfig) HLSConfig {
 	if cfg.MediaBaseName == "" {
-		cfg.MediaBaseName = "fileSequence"
+		cfg.MediaBaseName = "segment"
 	}
 
 	if cfg.Duration == 0 {
@@ -111,7 +110,7 @@ func setDefaultValues(cfg HLSConfig) HLSConfig {
 	}
 
 	if cfg.IndexFile == "" {
-		cfg.IndexFile = "prog_index.m3u8"
+		cfg.IndexFile = "video.m3u8"
 	}
 
 	return cfg
