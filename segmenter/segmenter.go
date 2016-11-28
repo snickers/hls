@@ -21,13 +21,13 @@ import (
 
 //HLSConfig stores all the configurations needed for HLS outputs
 type HLSConfig struct {
-	BaseURL       string
-	FileBase      string
-	MediaBaseName string
-	IndexFile     string
-	SourceFile    string
-	Stat          int
-	Duration      float64
+	BaseURL         string
+	FileBase        string
+	MediaBaseName   string
+	IndexFile       string
+	SourceFile      string
+	Stat            int
+	SegmentDuration float64
 }
 
 // Segment function is responsible for the HLS generation
@@ -65,7 +65,7 @@ func Segment(cfg HLSConfig) error {
 	mediaBaseName := C.CString(cfg.MediaBaseName)
 	defer C.free(unsafe.Pointer(mediaBaseName))
 
-	if ret := C.segmenter_init(outputContext, sourceContext, fileBase, mediaBaseName, C.double(cfg.Duration), C.int(3)); ret != 0 {
+	if ret := C.segmenter_init(outputContext, sourceContext, fileBase, mediaBaseName, C.double(cfg.SegmentDuration), C.int(3)); ret != 0 {
 		return fmt.Errorf("Cannot initialize segmenter: %s", C.GoString(C.sg_strerror(C.int(ret))))
 	}
 
@@ -105,8 +105,8 @@ func setDefaultValues(cfg HLSConfig) HLSConfig {
 		cfg.MediaBaseName = "segment"
 	}
 
-	if cfg.Duration == 0 {
-		cfg.Duration = 10
+	if cfg.SegmentDuration == 0 {
+		cfg.SegmentDuration = 10
 	}
 
 	if cfg.IndexFile == "" {
